@@ -42,3 +42,23 @@ exports.loginUser = async (req, res,next) => {
         return res.status(500).json({ error: err.message });
     }
 };
+exports.editUser = async (req, res,next) => {
+    try {
+        
+        await Promise.all([
+            body('email').isEmail().withMessage('Invalid email address').run(req),
+            body('userName').notEmpty().withMessage('Name is required').run(req),
+        ]);
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({msg:"validation error", errors: errors.array() });
+        }
+
+        next()
+        
+        
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+};

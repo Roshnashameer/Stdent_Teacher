@@ -17,7 +17,7 @@ exports.signUp = async (req, res) => {
             });
 
             await newUser.save();
-            return res.status(200).json({Message:"Success",user:newUser});
+            return res.status(200).json({ Message: "Success", user: newUser });
         }
     } catch (err) {
         return res.status(500).json(`Create API failed: ${err}`);
@@ -51,16 +51,24 @@ exports.getStudents = async (req, res) => {
 
     try {
         // Adding Pagination 
-        const limitValue = req.query.limit || 3;
-        const skipValue = req.query.skip || 0;
+
+        const pageNumber = parseInt(req.query.pageNumber) || 1;
+        const limit = parseInt(req.query.limit) || 2;
+
         const userArray = await users.find({ role: "student" })
-            .limit(limitValue).skip(skipValue);
+            .limit(limit * 1)
+            .skip((pageNumber - 1) * limit)
+            .exec();
+        // .limit(limitValue).skip(skipValue);
+        const count = await users.find({ role: "student" }).count()
+
 
         if (userArray && userArray.length > 0) {
-            res.status(200).json(userArray);
+            res.status(200).json({ students:count, userArray });
         } else {
-            res.status(404).json("No Students ");
+            res.status(404).json({ msg: "No Students in this page " });
         }
+
 
     }
     catch (err) {
